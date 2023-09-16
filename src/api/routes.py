@@ -16,3 +16,31 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+@api.route("/login", methods=["POST"])
+def login():
+    email = request.json.get("username", None)
+    password = request.json.get("password", None)
+
+    user = User.query.filter_by(email=email, password=password).first()
+
+    if user is None:
+        # the user was not found on the database
+        return jsonify({"msg": "Bad username or password"}), 401
+
+    return jsonify({"user": user.serialize()}), 201
+
+
+
+
+@api.route("/signup", methods=["POST"])
+def signup():
+    email = request.json.get("username", None)
+    password = request.json.get("password", None)
+
+    user = User(email=email, password=password, is_active=True)
+
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify({"user": user.serialize()}), 201
