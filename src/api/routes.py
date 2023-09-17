@@ -22,7 +22,7 @@ def handle_hello():
 @jwt_required()
 def current_user():
     current_user_id = get_jwt_identity()
-    user = User.filter.get(current_user_id)
+    user = User.query.get(current_user_id)
     
     return jsonify({"user": user.serialize()})
 
@@ -43,8 +43,6 @@ def login():
     return jsonify({"token": access_token, "user": user.serialize()}), 200
 
 
-
-
 @api.route("/signup", methods=["POST"])
 def signup():
     email = request.json.get("username", None)
@@ -55,4 +53,6 @@ def signup():
     db.session.add(user)
     db.session.commit()
 
-    return jsonify({"user": user.serialize()}), 201
+    access_token = create_access_token(identity=user.id)
+
+    return jsonify({"token": access_token, "user": user.serialize()}), 201
